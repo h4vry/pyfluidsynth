@@ -399,6 +399,11 @@ fluid_event_noteoff = cfunc('fluid_event_noteoff', None,
                          ('channel', c_int, 1),
                          ('key', c_short, 1))
 
+fluid_event_pitch_bend = cfunc('fluid_event_pitch_bend', None,
+                               ('evt', c_void_p, 1),
+                               ('channel', c_int, 1),
+                               ('pitch', c_int, 1))
+
 
 delete_fluid_event = cfunc('delete_fluid_event', None,
                           ('evt', c_void_p, 1))
@@ -929,6 +934,12 @@ class Sequencer:
     def note_off(self, time, channel, key, source=-1, dest=-1, absolute=True):
         evt = self._create_event(source, dest)
         fluid_event_noteoff(evt, channel, key)
+        self._schedule_event(evt, time, absolute)
+        delete_fluid_event(evt)
+
+    def pitch_bend(self, time, channel, pitch, source=-1, dest=-1, absolute=True):
+        evt = self._create_event(source, dest)
+        fluid_event_pitch_bend(evt, channel, pitch + 8192)
         self._schedule_event(evt, time, absolute)
         delete_fluid_event(evt)
 

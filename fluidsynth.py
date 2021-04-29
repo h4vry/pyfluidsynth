@@ -155,6 +155,16 @@ fluid_synth_pitch_bend = cfunc('fluid_synth_pitch_bend', c_int,
                                ('chan', c_int, 1),
                                ('val', c_int, 1))
 
+fluid_synth_pitch_wheel_sens = cfunc('fluid_synth_pitch_wheel_sens', c_int,
+                                     ('synth', c_void_p, 1),
+                                     ('chan', c_int, 1),
+                                     ('val', c_int, 1))
+
+fluid_synth_get_pitch_wheel_sens = cfunc('fluid_synth_get_pitch_wheel_sens', c_int,
+                                     ('synth', c_void_p, 1),
+                                     ('chan', c_int, 1),
+                                     ('val', POINTER(c_int), 1))
+
 fluid_synth_cc = cfunc('fluid_synth_cc', c_int,
                        ('synth', c_void_p, 1),
                        ('chan', c_int, 1),
@@ -817,6 +827,20 @@ class Synth:
         
         """
         return fluid_synth_pitch_bend(self.synth, chan, val + 8192)
+    def pitch_wheel_sens(self, chan, val):
+        """Set MIDI pitch wheel sensitivity on a MIDI channel.
+
+        Parameters:
+        chan : int
+            MIDI channel number (0 to MIDI channel count - 1).
+        val : int
+            Pitch wheel sensitivity value in semitones.
+        """
+        return fluid_synth_pitch_wheel_sens(self.synth, chan, val)
+    def get_pitch_wheel_sens(self, chan):
+        i = c_int()
+        fluid_synth_get_pitch_wheel_sens(self.synth, chan, byref(i))
+        return i.value
     def cc(self, chan, ctrl, val):
         """Send control change value
 
